@@ -3,9 +3,11 @@
 # Author: Joseph Astier
 # Date: 2020 October 
 #
-# Single action port forwarder.  This script will manage forwarding
+# Single-action port forwarder.  This script will manage forwarding
 # one port from this machine to a destination machine, by starting an
 # ssh process that will maintain the port forwarding in the background.
+# The command used to start the forwarding is later used to check for a
+# running process, or to stop it.
 #
 # Required arguments:
 #
@@ -14,7 +16,7 @@
 # -p         Port to be forwarded to the destination machine
 #
 #
-# Optional actions (user chooses only 1, any others are ignred):
+# Optional actions (pick one):
 #
 # --start    Begin forwarding the port by starting a background ssh process
 #
@@ -25,6 +27,7 @@
 
 import argparse
 import os
+import subprocess
 
 parser = argparse.ArgumentParser()
 
@@ -48,37 +51,72 @@ parser.add_argument(
     '--status', action='store_true', help='Query the port status'
 )
 
+
+# Compose the ssh command from args
 args = parser.parse_args()
-print(args)
+port = str(args.p)
+host = args.d
+ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
 
 
-# Forward the port using ssh to manage it in the background
+# Find the pid(s) for this command, there may be n >= 0 of these 
+ps_cmd = 'ps -C \'' + ssh_cmd + '\' -o pid='
+proc = subprocess.Popen(ps_cmd, stdout=subprocess.PIPE, shell=True)
+retval = proc.wait()
+if(retval != 0):
+    print('Command ' + ps_cmd' + ' did not execute successfully')
+c = ' '
+output = ''
+while(c != ''):
+    c = proc.stdout.read(1)
+    output += c  
+
+# find numeric pids of each line
+outputLines = output.splitlines()
+
+pids = None
+
+try:
+    pids=[int(line) for line in outputLines] 
+except:
+    print('trouble in the henhouse')
+    
+print('pids:')
+print(pids)
+
+# Forward the port by running the ssh command
 if(args.start):
-
-    p = str(args.p)
-    cmd = 'ssh -o ConnectTimeout=7 -NfL ' + p + ':localhost:' + p + ' '+args.d
+    if(len(pids) > 0):
+        print('port ' + port + ' is already forwarded to ' + host)
+    else:
+        try:
+            if(os.system(ssh_cmd) == 0):
+                print('port ' + port + ' is forwarded to ' + host)
+            else:
+                print('port ' + port + ' could not be forwarded to ' + host)
+        except: 
+            print('There was a problem forwarding port ' + port + ' to ' + host)
   
-    try:
-        print('Executing command')
-        print(cmd)
-        os.system(cmd)
+
+# Stop forwarding the port(s) by killing their processes
+elif(args.stop):
+    for pid in pids:
+        print('pid = ' + str(pid))
+        cmd = 'kill ' + str(pid)
+        try:
+            if(os.system(cmd) == 0):
+                print('port ' + port + ' forwarding to ' + host + ' stopped')
+            else:
+                print('port ' + port + ' forwarding to ' + host + ' not stopped')
+        except: 
+            print('There was a problem stopping forwarding of port ' + port + ' to ' + host)
+    
+
+
+# Query the status of the port by checking if it is bound
+elif(args.status):
+    state = (' is not', ' is')[len(pids) > 0]
+    print('Port ' + port + state + ' forwarded to ' + host)
         
-
-    except NameError:
-        print('NameError exception')
-
-    except: 
-        print('some other exception')
-  
-# Stop forwarding the port by killing the ssh process managing this 
-# port, if one exists.  
-else if(args.stop):
-     print('Stop')
-
-# Query the status of the port by checking if there is an ssh process
-# with destination and port number already running.  
-# TODO:  Detect if a port has been bound by any process, not just ours.
-else if(args.status):
-    print('Status')
 
 
