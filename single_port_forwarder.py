@@ -63,8 +63,6 @@ ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + 
 ps_cmd = 'ps -C \'' + ssh_cmd + '\' -o pid='
 proc = subprocess.Popen(ps_cmd, stdout=subprocess.PIPE, shell=True)
 retval = proc.wait()
-if(retval != 0):
-    print('Command ' + ps_cmd' + ' did not execute successfully')
 c = ' '
 output = ''
 while(c != ''):
@@ -73,27 +71,24 @@ while(c != ''):
 
 # find numeric pids of each line
 outputLines = output.splitlines()
-
-pids = None
-
-try:
-    pids=[int(line) for line in outputLines] 
-except:
-    print('trouble in the henhouse')
+pids = []
+for line in outputLines:
+    try:
+        pids.append(int(line))
+    except:
+        continue
     
-print('pids:')
-print(pids)
 
 # Forward the port by running the ssh command
 if(args.start):
     if(len(pids) > 0):
-        print('port ' + port + ' is already forwarded to ' + host)
+        print(port + ' is already forwarded to ' + host)
     else:
         try:
             if(os.system(ssh_cmd) == 0):
-                print('port ' + port + ' is forwarded to ' + host)
+                print('Port ' + port + ' is forwarded to ' + host)
             else:
-                print('port ' + port + ' could not be forwarded to ' + host)
+                print('Port ' + port + ' could not be forwarded to ' + host)
         except: 
             print('There was a problem forwarding port ' + port + ' to ' + host)
   
@@ -105,15 +100,15 @@ elif(args.stop):
         cmd = 'kill ' + str(pid)
         try:
             if(os.system(cmd) == 0):
-                print('port ' + port + ' forwarding to ' + host + ' stopped')
+                print('Port ' + port + ' unforwarded from ' + host)
             else:
-                print('port ' + port + ' forwarding to ' + host + ' not stopped')
+                print('Port ' + port + ' forwarding to ' + host + ' not stopped')
         except: 
-            print('There was a problem stopping forwarding of port ' + port + ' to ' + host)
+            print('There was a problem unforwarding port ' + port + ' to ' + host)
     
 
 
-# Query the status of the port by checking if it is bound
+# Query the status of the port by testing if a forwarding process exists
 elif(args.status):
     state = (' is not', ' is')[len(pids) > 0]
     print('Port ' + port + state + ' forwarded to ' + host)
