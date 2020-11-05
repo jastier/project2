@@ -41,19 +41,10 @@ parser.add_argument(
 )
 
 # add actions
-START = 'start'
-STOP = 'stop'
-STATUS = 'status'
+START = 'start'    # Start forwarding this port
+STOP = 'stop'      # Stop forwarding this port
+STATUS = 'status'  # Return the port status
 parser.add_argument('action', choices=(START, STOP, STATUS))
-#parser.add_argument(
-#    '--start', action='store_true', help='Start forwarding this port'
-#)
-#parser.add_argument(
-#    '--stop', action='store_true', help='Stop forwarding this port'
-#)
-#parser.add_argument(
-#    '--status', action='store_true', help='Query the port status'
-#)
 
 
 # Compose an ssh command that will start forward the port to the host
@@ -117,7 +108,7 @@ elif(args.action == STOP):
 
 
 # Query the status of the port by testing if it already has an ssh process
-elif(args.action == STATUS):
+else:  # STATUS
     for pid in pids:
         print('Port '+port+' is forwarded to '+host+' ['+str(pid)+']')
     if(len(pids) == 0):
