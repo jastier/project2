@@ -1,6 +1,11 @@
 #!/usr/bin/env python
-
-# Debug tester for Joseph's single port forwarding python script.
+#
+# Author: Joseph Astier
+# Date: 2020 October
+#
+# Debugging script for the Single-action port forwarder.  Each test case is
+# run as a system call.   Feel free to add new cases.
+#
 
 import os
 
@@ -8,7 +13,7 @@ import os
 passStr = ' OK '
 failStr = 'FAIL'
 
-# path to software under test
+# path to test article
 target = './single_port_forwarder.py'
 
 # Perform the test with a system call.  A zero return value is a pass.
@@ -23,16 +28,16 @@ def doTest(t):
 # Tests to perform.  They should probably have names
 tests = (
     './exitOK.py',
-    target + ' -d localhost -p 80',
-    target + ' -d localhost -p 80 --start',
-    target + ' -d localhost -p 80 --status',
-    target + ' -d localhost -p 80 --stop',
-    target + ' -d localhost -p 80 --start --status --stop',
+    target + ' -d localhost -p 10000',
+    target + ' -d localhost -p 10000 --start',
+    target + ' -d localhost -p 10000 --status',
+    target + ' -d localhost -p 10000 --stop',
+    target + ' -d localhost -p 10000 --start --status --stop',
     './exitFAIL.py',
     target,
     target + ' -d localhost',
     target + ' -p blah',
-    target + ' -p 80',
+    target + ' -p 10000',
 )
 
 # run the tests.  This output can be rather verbose.

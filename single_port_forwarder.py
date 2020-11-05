@@ -65,6 +65,8 @@ ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + 
 # the port has already been forwarded.
 pids = []
 ps_cmd = 'ps -C \'' + ssh_cmd + '\' -o pid='
+
+#TODO:  Eliminate use of the 'shell=true' setting, it is a security concern.
 proc = subprocess.Popen(ps_cmd, stdout=subprocess.PIPE, shell=True)
 retval = proc.wait()
 c = ' '
