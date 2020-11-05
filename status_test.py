@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# run a single test case
+# run a single test case that checks the status of a forwarded port
 
 import os
 
-os.system('./single_port_forwarder.py -d lectura.cs.arizona.edu -p 8000 --status')
+cmd = './single_port_forwarder.py -d lectura.cs.arizona.edu -p 8000 --status'
+
+os.system(cmd)
 
