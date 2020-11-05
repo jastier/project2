@@ -4,7 +4,7 @@
 # Date: 2020 October
 #
 # Multiple Port Forwarder.  This script will manage forwarding multiple
-# port, by repeatedly calling the Single Port Forwarder.  Each call to the
+# ports, by repeatedly calling the Single Port Forwarder.  Each call to the
 # Single Port Forwarder requires three arguments:
 #
 # -d <destination>       hostname or IP address 
@@ -17,7 +17,8 @@
 import threading
 import os
 
-# Add your port forwarding jobs here.  
+# Add your port forwarding jobs here.  Number of Jobs is arbitrary, as is
+# the order in which the three arguments appear.
 jobs = (
     ('-d lectura.cs.arizona.edu', '-p 8002', 'start'),
     ('-d lectura.cs.arizona.edu', '-p 8002', 'status'),
@@ -30,8 +31,8 @@ jobs = (
 spf = './single_port_forwarder.py'
 
 
-# Run as a thread
-def worker(arg1, arg2, arg3):
+# Run one job
+def jobRunner(arg1, arg2, arg3):
     cmd = spf + ' ' + arg1 + ' ' + arg2 + ' ' + arg3
     print(cmd)
     os.system(cmd)
@@ -40,6 +41,7 @@ def worker(arg1, arg2, arg3):
 # Start a thread for each job
 thread_list = []
 for job in jobs:
-    thread = threading.Thread(target=worker, args=job)
+    thread = threading.Thread(target=jobRunner, args=job)
     thread_list.append(thread)
     thread.start()
+
