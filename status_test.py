@@ -4,7 +4,7 @@
 
 import os
 
-cmd = './single_port_forwarder.py -d lectura.cs.arizona.edu -p 8000 --status'
+cmd = './single_port_forwarder.py -d lectura.cs.arizona.edu -p 8000 status'
 
 os.system(cmd)
 

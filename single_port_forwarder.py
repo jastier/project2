@@ -11,18 +11,18 @@
 #
 # Required arguments:
 #
-# -d         Destination, either a hostname or IPV4/IPV6 address
+# -d       Destination, either a hostname or IPV4/IPV6 address
 #
-# -p         Port to be forwarded to the destination machine
+# -p       Port to be forwarded to the destination machine
 #
 #
-# Optional actions (pick one):
+# actions (choose one):
 #
-# --start    Begin forwarding the port by starting a background ssh process
+# start    Begin forwarding the port by starting a background ssh process
 #
-# --stop     Stop the port by killing the ssh process.  
+# stop     Stop the port by killing the ssh process.  
 #
-# --status   Report whether the port is currently in use.
+# status   Report whether the port is currently in use.
 #
 
 import argparse
@@ -41,15 +41,19 @@ parser.add_argument(
 )
 
 # add actions
-parser.add_argument(
-    '--start', action='store_true', help='Start forwarding this port'
-)
-parser.add_argument(
-    '--stop', action='store_true', help='Stop forwarding this port'
-)
-parser.add_argument(
-    '--status', action='store_true', help='Query the port status'
-)
+START = 'start'
+STOP = 'stop'
+STATUS = 'status'
+parser.add_argument('action', choices=(START, STOP, STATUS))
+#parser.add_argument(
+#    '--start', action='store_true', help='Start forwarding this port'
+#)
+#parser.add_argument(
+#    '--stop', action='store_true', help='Stop forwarding this port'
+#)
+#parser.add_argument(
+#    '--status', action='store_true', help='Query the port status'
+#)
 
 
 # Compose an ssh command that will start forward the port to the host
@@ -83,7 +87,7 @@ for line in outputLines:
     
 
 # Forward the port by starting a process with the ssh command
-if(args.start):
+if(args.action == START):
     print('Forwarding ' + port + ' to ' + host + '...')
     if(len(pids) == 0):
         try:
@@ -98,7 +102,7 @@ if(args.start):
   
 
 # Stop forwarding the port(s) by killing their pids
-elif(args.stop):
+elif(args.action == STOP):
     print('Unforwarding ' + port + ' from ' + host + '...')
     for pid in pids:
         cmd = 'kill ' + str(pid)
@@ -113,7 +117,7 @@ elif(args.stop):
 
 
 # Query the status of the port by testing if it already has an ssh process
-elif(args.status):
+elif(args.action == STATUS):
     for pid in pids:
         print('Port '+port+' is forwarded to '+host+' ['+str(pid)+']')
     if(len(pids) == 0):

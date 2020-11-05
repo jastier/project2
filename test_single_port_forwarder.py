@@ -28,16 +28,17 @@ def doTest(t):
 # Tests to perform.  They should probably have names
 tests = (
     './exitOK.py',
-    target + ' -d localhost -p 10000',
-    target + ' -d localhost -p 10000 --start',
-    target + ' -d localhost -p 10000 --status',
-    target + ' -d localhost -p 10000 --stop',
-    target + ' -d localhost -p 10000 --start --status --stop',
+    target + ' -d localhost -p 10000 start',
+    target + ' -d localhost -p 10000 status',
+    target + ' -d localhost -p 10000 stop',
     './exitFAIL.py',
-    target,
+    target + ' -d localhost -p 10000 start status stop',
+    target + ' -d localhost -p 10000 blah',
+    target + ' -d localhost -p 10000',
     target + ' -d localhost',
     target + ' -p blah',
     target + ' -p 10000',
+    target,
 )
 
 # run the tests.  This output can be rather verbose.
