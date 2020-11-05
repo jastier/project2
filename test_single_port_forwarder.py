@@ -29,9 +29,12 @@ def doTest(t):
 tests = (
     './exitOK.py',
     target + ' -d localhost -p 10000 start',
+    target + ' start -d localhost -p 10000',
+    target + ' -p 10000 start -d localhost',
     target + ' -d localhost -p 10000 status',
     target + ' -d localhost -p 10000 stop',
     './exitFAIL.py',
+    target + ' -p localhost -d 10000 stop',
     target + ' -d localhost -p 10000 start status stop',
     target + ' -d localhost -p 10000 blah',
     target + ' -d localhost -p 10000',
