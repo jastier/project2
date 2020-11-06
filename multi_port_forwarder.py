@@ -5,21 +5,21 @@
 #
 # Multiple Port Forwarder.  This script will manage forwarding multiple
 # ports, by repeatedly calling the Single Port Forwarder.  Each call to the
-# Single Port Forwarder requires three arguments:
+# Single Port Forwarder requires three arguments:  
 #
 # -d <destination>       hostname or IP address 
-#
 # -p <port>              positive integer 
+# <action>               'start' or 'stop' or 'status' 
 #
-# <action>               'start', 'stop', or 'status' 
-#
+# A collection of these three arguments define a Job that this script can run.
+# eg ('-d lectura.cs.arizona.edu', '-p 8002', 'status'),
 
-import threading
+
 import os
 
-# Add your port forwarding jobs here.  Number of Jobs is arbitrary, as is
-# the order in which the three arguments appear.
+# Add your port forwarding jobs here
 jobs = (
+    ('-d lectura.cs.arizona.edu', '-p 8002', 'status'),
     ('-d lectura.cs.arizona.edu', '-p 8002', 'start'),
     ('-d lectura.cs.arizona.edu', '-p 8002', 'status'),
     ('-d lectura.cs.arizona.edu', '-p 8002', 'stop'),
@@ -27,21 +27,18 @@ jobs = (
 )
 
 
-# Single Port Forwarder script
-spf = './single_port_forwarder.py'
-
-
-# Run one job
-def jobRunner(arg1, arg2, arg3):
-    cmd = spf + ' ' + arg1 + ' ' + arg2 + ' ' + arg3
-    print(cmd)
-    os.system(cmd)
-
-
-# Start a thread for each job
-thread_list = []
+# Run each job.  
+job_id = 0
+print('Port Forwarder jobs to run: ' + str(len(jobs)))
 for job in jobs:
-    thread = threading.Thread(target=jobRunner, args=job)
-    thread_list.append(thread)
-    thread.start()
-
+    job_id += 1
+    print("Starting job " + str(job_id) + '...')
+    cmd = './single_port_forwarder.py'
+    for arg in job:
+        cmd += ' ' + arg
+    print(cmd)
+    for line in os.popen(cmd).read().splitlines():
+        line = line.rstrip('\n')
+        if(len(line) > 0):
+            print(line)
+    print("Job " + str(job_id) + ' completed.')
